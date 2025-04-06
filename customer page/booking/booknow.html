@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technician Booking - TROS</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css for Animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDf7FOHr6QlfTXKLjXOR9RKyYfasq7zC_w&callback=initMap" async defer></script>
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin-top: 50px;
+        }
+        .booking-form {
+            background: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .booking-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #003087, #ff0000);
+        }
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-header h2 {
+            color: #003087;
+            font-weight: bold;
+        }
+        .form-header .progress-bar {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .form-header .progress-bar .progress {
+            height: 100%;
+            background: #ff0000;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .form-control, .form-select {
+            border: 2px solid #003087;
+            border-radius: 8px;
+            padding: 10px;
+            transition: border-color 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #ff0000;
+            box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+        }
+        .btn-primary {
+            background: #003087;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: #ff0000;
+        }
+        .btn-primary:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .tooltip-icon {
+            margin-left: 5px;
+            color: #003087;
+            cursor: pointer;
+        }
+        .tooltip-icon:hover {
+            color: #ff0000;
+        }
+        .availability-check {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #28a745;
+            display: none;
+        }
+        .service-icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .footer-text a {
+            color: #ff0000;
+            text-decoration: none;
+        }
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+        .service-preview {
+            display: none;
+            background: #f8f9fa;
+            border: 1px solid #003087;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            animation: fadeIn 0.5s ease;
+        }
+        .service-preview i {
+            font-size: 1.5em;
+            color: #ff0000;
+            margin-right: 10px;
+        }
+        .time-slots {
+            display: none;
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #003087;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .time-slot-option {
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .time-slot-option:hover {
+            background: #003087;
+            color: #fff;
+        }
+        .time-slot-option.active {
+            background: #ff0000;
+            color: #fff;
+        }
+        .map-preview {
+            display: none;
+            margin-top: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+        .map-preview #map {
+            height: 150px;
+            width: 100%;
+        }
+        .form-control:disabled, .form-select:disabled {
+            background: #f0f0f0;
+            border-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .disabled-message {
+            display: block;
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="booking-form">
+            <div class="form-header">
+                <h2>Book a Technician</h2>
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+            </div>
+
+            <form action="../find_technician.php" method="POST" id="bookingForm">
+                <div class="mb-3">
+                    <label for="service" class="form-label">
+                        <i class="fas fa-tools service-icon"></i>Select Service
+                        <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" title="Choose the type of service you need."></i>
+                    </label>
+                    <select name="service" id="service" class="form-select" required>
+                        <option value="" selected disabled>-- Select a Service --</option>
+                        <option value="plumbing">Plumbing</option>
+                        <option value="renovation">Renovation</option>
+                        <option value="electrical">Electrical</option>
+                    </select>
+                    <div class="service-preview" id="servicePreview">
+                        <i class="fas fa-bolt"></i>
+                        <span id="serviceDescription"></span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label">
+                        <i class="fas fa-calendar-alt service-icon"></i>Choose Date
+                        <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" title="Pick a date within the next 1 month."></i>
+                    </label>
+                    <input type="text" name="date" id="date" class="form-control" required placeholder="Select a date" disabled>
+                    <span class="disabled-message" id="dateMessage">Please select a service first.</span>
+                </div>
+                <div class="mb-3">
+                    <label for="time" class="form-label">
+                        <i class="fas fa-clock service-icon"></i>Choose Time
+                        <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" title="Select a time slot for your appointment."></i>
+                    </label>
+                    <input type="text" name="time" id="time" class="form-control" required placeholder="Select a time" disabled>
+                    <span class="disabled-message" id="timeMessage">Please select a date first.</span>
+                    <div class="availability-check" id="availabilityMessage">Checking availability...</div>
+                    <div class="time-slots" id="timeSlots"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="location" class="form-label">
+                        <i class="fas fa-map-marker-alt service-icon"></i>Location
+                        <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" title="Select your location in Kuala Lumpur."></i>
+                    </label>
+                    <select id="location" name="location" class="form-select" required disabled>
+                        <option value="" selected disabled>-- Select a Location in KL --</option>
+                        <option value="Titiwangsa">Titiwangsa</option>
+                        <option value="Setapak">Setapak</option>
+                        <option value="Bukit Bintang">Bukit Bintang</option>
+                        <option value="Kampung Baru">Kampung Baru</option>
+                        <option value="Cheras">Cheras</option>
+                    </select>
+                    <span class="disabled-message" id="locationMessage">Please select a time first.</span>
+                    <p class="text-muted mt-2">If your area is not listed, our service is currently unavailable in your location.</p>
+                    <div class="map-preview" id="mapPreview">
+                        <div id="map"></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" id="submitButton" disabled>Book Now</button>
+            </form>
+        </div>
+        <div class="footer-text">
+            Need help? <a href="/contact">Contact Us</a> or call <a href="tel:+6014-271987">+6014-271987</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Custom JavaScript -->
+    <script>
+        let map;
+        let geocoder;
+
+        // Initialize Google Map
+        function initMap() {
+            try {
+                geocoder = new google.maps.Geocoder();
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 14,
+                    center: { lat: 3.1390, lng: 101.6869 } // Default center: Kuala Lumpur
+                });
+            } catch (error) {
+                console.error('Failed to initialize Google Map:', error);
+                document.getElementById('map').innerHTML = '<p style="color: red;">Failed to load map. Please try again later.</p>';
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Form Elements
+            const serviceSelect = document.getElementById('service');
+            const dateInput = document.getElementById('date');
+            const timeInput = document.getElementById('time');
+            const locationSelect = document.getElementById('location');
+            const submitButton = document.getElementById('submitButton');
+            const dateMessage = document.getElementById('dateMessage');
+            const timeMessage = document.getElementById('timeMessage');
+            const locationMessage = document.getElementById('locationMessage');
+
+            // Dynamic Date and Time Logic
+            let now = new Date();
+            let currentHours = now.getHours();
+            
+            let minSelectableDate = new Date();
+            if (currentHours >= 21) {
+                minSelectableDate.setDate(minSelectableDate.getDate() + 1);
+            }
+            let maxSelectableDate = new Date();
+            maxSelectableDate.setMonth(maxSelectableDate.getMonth() + 1);
+
+            const datePicker = flatpickr("#date", {
+                enableTime: false,
+                dateFormat: "Y-m-d",
+                minDate: minSelectableDate,
+                maxDate: maxSelectableDate,
+                onChange: function (selectedDates) {
+                    updateMinTime(selectedDates[0]);
+                    updateProgress();
+                    generateTimeSlots(selectedDates[0]);
+                    timeInput.disabled = false;
+                    timeMessage.style.display = 'none';
+                }
+            });
+
+            const timePicker = flatpickr("#time", {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "h:i K",
+                minTime: "09:00",
+                maxTime: "21:00",
+                time_24hr: false,
+                onChange: function(selectedDates, dateStr) {
+                    checkAvailability(dateStr);
+                    updateProgress();
+                    updateTimeSlotSelection(dateStr);
+                    if (dateStr) {
+                        locationSelect.disabled = false;
+                        locationMessage.style.display = 'none';
+                    }
+                }
+            });
+
+            function updateMinTime(selectedDate) {
+                let selectedDay = new Date(selectedDate);
+                let today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                let minTime = "09:00";
+                if (selectedDay.getTime() === today.getTime()) {
+                    let now = new Date();
+                    let currentHours = now.getHours();
+                    let currentMinutes = now.getMinutes();
+
+                    if (currentHours < 9) {
+                        minTime = "09:00";
+                    } else if (currentHours < 21) {
+                        minTime = `${String(currentHours).padStart(2, '0')}:${String(currentMinutes).padStart(2, '0')}`;
+                    } else {
+                        minTime = "21:00";
+                    }
+                }
+
+                timePicker.set({ minTime: minTime });
+                return minTime;
+            }
+
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+            function updateProgress() {
+                const form = document.getElementById('bookingForm');
+                const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
+                let filled = 0;
+                inputs.forEach(input => {
+                    if (input.value) filled++;
+                });
+                const progress = (filled / inputs.length) * 100;
+                document.getElementById('progress').style.width = `${progress}%`;
+
+                if (filled === inputs.length) {
+                    submitButton.disabled = false;
+                } else {
+                    submitButton.disabled = true;
+                }
+            }
+
+            function checkAvailability(time) {
+                const availabilityMessage = document.getElementById('availabilityMessage');
+                availabilityMessage.style.display = 'block';
+                setTimeout(() => {
+                    availabilityMessage.textContent = 'This time slot is available!';
+                    availabilityMessage.style.color = '#28a745';
+                }, 1000);
+            }
+
+            serviceSelect.addEventListener('change', function() {
+                const servicePreview = document.getElementById('servicePreview');
+                const serviceDescription = document.getElementById('serviceDescription');
+                const service = this.value;
+                servicePreview.style.display = 'block';
+                if (service === 'electrical') {
+                    serviceDescription.textContent = 'Electrical: Wiring, repairs, and installations.';
+                    servicePreview.querySelector('i').className = 'fas fa-bolt';
+                } else if (service === 'plumbing') {
+                    serviceDescription.textContent = 'Plumbing: Leak repairs, pipe installations, and more.';
+                    servicePreview.querySelector('i').className = 'fas fa-faucet';
+                } else if (service === 'renovation') {
+                    serviceDescription.textContent = 'Renovation: Home improvements and remodeling.';
+                    servicePreview.querySelector('i').className = 'fas fa-hammer';
+                }
+                dateInput.disabled = false;
+                dateMessage.style.display = 'none';
+                updateProgress();
+            });
+
+            function generateTimeSlots(selectedDate) {
+                const timeSlotsContainer = document.getElementById('timeSlots');
+                timeSlotsContainer.innerHTML = '';
+                timeSlotsContainer.style.display = 'block';
+
+                const minTime = updateMinTime(selectedDate);
+                const minHour = parseInt(minTime.split(':')[0]);
+                const minMinute = parseInt(minTime.split(':')[1]);
+                const startHour = minHour + (minMinute > 0 ? 1 : 0);
+
+                for (let hour = startHour; hour <= 21; hour++) {
+                    const time = `${hour % 12 === 0 ? 12 : hour % 12}:00 ${hour < 12 || hour === 24 ? 'AM' : 'PM'}`;
+                    const option = document.createElement('div');
+                    option.className = 'time-slot-option';
+                    option.textContent = time;
+                    option.setAttribute('data-time', time);
+                    option.addEventListener('click', function() {
+                        document.getElementById('time').value = time;
+                        timePicker.setDate(time);
+                        checkAvailability(time);
+                        updateProgress();
+                        updateTimeSlotSelection(time);
+                        locationSelect.disabled = false;
+                        locationMessage.style.display = 'none';
+                    });
+                    timeSlotsContainer.appendChild(option);
+                }
+            }
+
+            function updateTimeSlotSelection(selectedTime) {
+                const timeSlotOptions = document.querySelectorAll('.time-slot-option');
+                timeSlotOptions.forEach(option => {
+                    if (option.getAttribute('data-time') === selectedTime) {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
+            }
+
+            // Fallback coordinates for Setapak in case geocoding fails
+            const fallbackCoordinates = {
+                "Setapak": { lat: 3.1888, lng: 101.7041 } // Correct coordinates for Setapak, Kuala Lumpur
+            };
+
+            // Update Google Map based on Location Selection
+            locationSelect.addEventListener('change', function() {
+                const mapPreview = document.getElementById('mapPreview');
+                const location = this.value;
+                mapPreview.style.display = 'block';
+                updateProgress();
+
+                // Geocode the selected location and update the map
+                if (geocoder && map) {
+                    geocoder.geocode(
+                        { 
+                            'address': `${location}, Kuala Lumpur, Malaysia`,
+                            'region': 'MY' // Bias results to Malaysia
+                        }, 
+                        function(results, status) {
+                            if (status === 'OK') {
+                                // Check if the result is actually in Kuala Lumpur
+                                const resultLocation = results[0].geometry.location;
+                                const isInKualaLumpur = results[0].formatted_address.includes("Kuala Lumpur");
+
+                                if (isInKualaLumpur || location !== "Setapak") {
+                                    map.setCenter(resultLocation);
+                                    new google.maps.Marker({
+                                        map: map,
+                                        position: resultLocation
+                                    });
+                                } else {
+                                    // Fallback for Setapak if geocoding doesn't return a Kuala Lumpur location
+                                    console.warn(`Geocoding for ${location} did not return a Kuala Lumpur location. Using fallback coordinates.`);
+                                    const fallback = fallbackCoordinates[location];
+                                    map.setCenter(fallback);
+                                    new google.maps.Marker({
+                                        map: map,
+                                        position: fallback
+                                    });
+                                }
+                            } else {
+                                // Fallback to hardcoded coordinates if geocoding fails entirely
+                                console.error('Geocode failed: ' + status);
+                                if (location in fallbackCoordinates) {
+                                    const fallback = fallbackCoordinates[location];
+                                    map.setCenter(fallback);
+                                    new google.maps.Marker({
+                                        map: map,
+                                        position: fallback
+                                    });
+                                } else {
+                                    document.getElementById('map').innerHTML = '<p style="color: red;">Failed to load location. Please try again.</p>';
+                                }
+                            }
+                        }
+                    );
+                } else {
+                    console.error('Geocoder or map not initialized.');
+                    document.getElementById('map').innerHTML = '<p style="color: red;">Map not available. Please try again later.</p>';
+                }
+            });
+
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

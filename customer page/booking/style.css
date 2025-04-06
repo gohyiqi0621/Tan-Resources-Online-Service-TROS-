@@ -1,0 +1,286 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Body Styling */
+body {
+    background: linear-gradient(135deg, #0A2472, #D91E36);  /* Blend of original blue and muted red */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Adding a subtle background pattern for depth */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 2px, transparent 2px);
+    background-size: 20px 20px;
+    opacity: 0.2;
+    z-index: 0;
+}
+
+/* Main Container */
+.container {
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+/* Heading */
+h2 {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.3);
+    animation: fadeIn 1.2s ease-in-out;
+}
+
+/* Booking Form */
+.booking-form {
+    border-radius: 14px;
+    padding: 35px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);  /* Light transparent white for form background */
+    backdrop-filter: blur(8px);  /* Subtle blur for glassmorphism effect */
+    animation: slideIn 0.8s ease-in-out;
+    transition: transform 0.3s ease;
+}
+
+.booking-form:hover {
+    transform: scale(1.02);
+}
+
+/* Form Content with Glassmorphism Effect */
+.form-content {
+    background: transparent;  /* Removed to use booking-form background */
+}
+
+/* Form Labels */
+.form-label {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 16px;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+/* Input Fields (including <select>) */
+.form-control {
+    height: 50px;
+    border: 2px solid #D91E36;  /* Red border to match the button */
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.1);  /* Light transparent white for inputs */
+    color: #ffffff !important;
+    transition: all 0.3s ease;
+    appearance: none;
+    cursor: pointer;
+    position: relative;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 12px;
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+/* Explicitly style readonly inputs to ensure the text is white */
+.form-control[readonly] {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 1;
+}
+
+/* Style the dropdown options */
+select.form-control option {
+    color: #ffffff !important;
+    background: #0A2472 !important;  /* Dark blue background for dropdown options */
+}
+
+/* Ensure the selected option remains white in all browsers */
+select.form-control option[selected],
+select.form-control option:checked {
+    color: #ffffff !important;
+    background: #0A2472 !important;  /* Dark blue background for selected options */
+}
+
+/* Fix for Firefox to ensure the selected option is white */
+@-moz-document url-prefix() {
+    .form-control {
+        color: #ffffff !important;
+    }
+    .form-control option {
+        color: #ffffff !important;
+    }
+}
+
+/* Input Placeholder */
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+}
+
+/* Input Focus Effect */
+.form-control:focus {
+    border-color: #ffffff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.2);  /* Slightly brighter on focus */
+    transform: scale(1.02);
+}
+
+/* Button */
+.btn-primary {
+    background: #D91E36;  /* Red button to match the border */
+    border: none;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 16px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    transition: all 0.4s ease-in-out;
+    width: 100%;
+    display: block;
+    text-align: center;
+    color: #ffffff;
+    box-shadow: 0 6px 12px rgba(217, 30, 54, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Button hover effect with a shine animation */
+.btn-primary:hover {
+    background: #B71C30;  /* Darker red for hover */
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(217, 30, 54, 0.6);
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: 0.5s;
+}
+
+.btn-primary:hover::before {
+    left: 100%;
+}
+
+/* Muted Text */
+.text-muted {
+    font-size: 14px;
+    color: #ffffff !important;
+    margin-top: 8px;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .booking-form {
+        padding: 25px;
+    }
+    h2 {
+        font-size: 28px;
+    }
+    .form-label {
+        font-size: 14px;
+    }
+    .form-control {
+        height: 45px;
+        font-size: 14px;
+    }
+    .btn-primary {
+        padding: 14px;
+        font-size: 16px;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Staggered animation for form elements */
+.form-content .form-label,
+.form-content .form-control,
+.form-content .text-muted,
+.form-content .btn-primary {
+    animation: slideIn 0.8s ease-in-out forwards;
+    opacity: 0;
+}
+
+.form-content .form-label:nth-child(1),
+.form-content .form-control:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.form-content .form-label:nth-child(3),
+.form-content .form-control:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.form-content .form-label:nth-child(5),
+.form-content .form-control:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.form-content .form-label:nth-child(7),
+.form-content .form-control:nth-child(8) {
+    animation-delay: 0.8s;
+}
+
+.form-content .text-muted {
+    animation-delay: 1s;
+}
+
+.form-content .btn-primary {
+    animation-delay: 1.2s;
+}
+
+.text-success {
+    color: #0A2472;
+    font-weight: 500;
+}
